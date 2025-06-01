@@ -1,0 +1,2 @@
+C:/Users/hadi1/Downloads/Compressed/donasi_app/android/app/.cxx/RelWithDebInfo/6l25l4l2/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/hadi1/Downloads/Compressed/donasi_app/android/app/.cxx/RelWithDebInfo/6l25l4l2/x86_64/CMakeFiles/rebuild_cache.dir
