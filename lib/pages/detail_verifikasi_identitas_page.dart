@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../models/identity_verification_model.dart';
@@ -22,28 +20,9 @@ class DetailVerifikasiIdentitasPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Align(
-            alignment: Alignment.center,
-            child: ClipOval(
-              child: data.user.photo != null
-                  ? Image.file(
-                      File(data.user.photo!),
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.asset(
-                      'assets/images/img_profile.webp',
-                      width: 80,
-                    ),
-            ),
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          _buildItem('Nama', data.user.name),
-          _buildItem('Email', data.user.email),
-          _buildItem('Telepon', data.user.phone),
+          _buildItem('Nama', data.fullName),
+          _buildItem('Email', data.email),
+          _buildItem('Telepon', data.phoneNumber),
           _buildItem('No. KTP', data.ktpNumber),
           _buildItem('Status', data.status),
           const SizedBox(height: 12),
@@ -52,10 +31,9 @@ class DetailVerifikasiIdentitasPage extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 8),
-          Image.file(
-            File(data.photo),
+          Image.network(
+            'http://192.168.100.97:8000/storage/${data.photo}',
             width: double.infinity,
-            fit: BoxFit.cover,
           ),
         ],
       ),
