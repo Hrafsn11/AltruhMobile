@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user_model.dart';
+import '../../core/api_config.dart';
 
 class MyCampaignsPage extends StatefulWidget {
   final UserModel user;
@@ -30,7 +31,7 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    final url = Uri.parse('http://192.168.100.141:8000/api/my-campaigns');
+    final url = Uri.parse('${ApiConfig.baseUrl}:8000/api/my-campaigns');
     try {
       final response = await http.get(
         url,

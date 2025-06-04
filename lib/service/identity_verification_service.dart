@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/api_config.dart';
 import '../models/identity_verification_model.dart';
 
 class IdentityVerificationService {
@@ -17,7 +18,7 @@ class IdentityVerificationService {
 
       final res = await http.get(
         Uri.parse(
-            'http://192.168.100.141:8000/api/admin/identity-verifications/pending'),
+            '${ApiConfig.baseUrl}:8000/api/admin/identity-verifications/pending'),
         headers: {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
@@ -50,7 +51,7 @@ class IdentityVerificationService {
 
       final response = await http.post(
         Uri.parse(
-            'http://192.168.100.141:8000/api/admin/identity-verifications/$id/approve'),
+            '${ApiConfig.baseUrl}:8000/api/admin/identity-verifications/$id/approve'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -80,7 +81,7 @@ class IdentityVerificationService {
 
       final response = await http.post(
         Uri.parse(
-            'http://192.168.100.141:8000/api/admin/identity-verifications/$id/reject'),
+            '${ApiConfig.baseUrl}:8000/api/admin/identity-verifications/$id/reject'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -110,7 +111,7 @@ class IdentityVerificationService {
       if (token == null) return const Left('Unauthorized');
 
       final res = await http.get(
-        Uri.parse('http://192.168.100.141:8000/api/identity-verifications/me'),
+        Uri.parse('${ApiConfig.baseUrl}:8000/api/identity-verifications/me'),
         headers: {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
@@ -145,7 +146,7 @@ class IdentityVerificationService {
       if (token == null) return const Left('Unauthorized');
 
       final response = await http.post(
-        Uri.parse('http://192.168.100.141:8000/api/identity-verifications/raw'),
+        Uri.parse('${ApiConfig.baseUrl}:8000/api/identity-verifications/raw'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',

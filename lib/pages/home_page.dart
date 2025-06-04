@@ -10,6 +10,7 @@ import '../models/user_model.dart';
 import '../models/campaign.dart';
 import '../widgets/campaign_card.dart';
 import 'filtered_campaign_list_page.dart';
+import '../core/api_config.dart';
 
 class HomePage extends StatefulWidget {
   final UserModel user;
@@ -36,8 +37,8 @@ class _HomePageState extends State<HomePage> {
       error = '';
     });
     try {
-      final response = await http
-          .get(Uri.parse('http://192.168.100.141:8000/api/campaigns'));
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}:8000/api/campaigns'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> list = data['data'] ?? [];

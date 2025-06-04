@@ -5,6 +5,7 @@ import '../widgets/campaign_card.dart';
 import 'campaign_detail_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../core/api_config.dart';
 
 class SemuaBantuanPage extends StatefulWidget {
   final UserModel user;
@@ -31,8 +32,8 @@ class _SemuaBantuanPageState extends State<SemuaBantuanPage> {
       error = '';
     });
     try {
-      final response = await http
-          .get(Uri.parse('http://192.168.100.141:8000/api/campaigns'));
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}:8000/api/campaigns'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> list = data['data'] ?? [];

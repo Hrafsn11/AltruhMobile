@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/api_config.dart';
 
 class CreateCampaignPage extends StatefulWidget {
   @override
@@ -82,7 +83,7 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
       return;
     }
     if (_formKey.currentState!.validate()) {
-      final url = Uri.parse('http://192.168.100.141:8000/api/campaigns');
+      final url = Uri.parse('${ApiConfig.baseUrl}:8000/api/campaigns');
       try {
         final Map<String, dynamic> body = {
           'title': _titleController.text,

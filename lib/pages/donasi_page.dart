@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/api_config.dart';
 
 class DonasiPage extends StatefulWidget {
   final Map<String, dynamic> campaign;
@@ -31,7 +32,7 @@ class _DonasiPageState extends State<DonasiPage> {
     setState(() => isLoading = true);
     final type = widget.campaign['type'];
     final id = widget.campaign['id'];
-    final url = Uri.parse('http://192.168.100.141:8000/api/donations');
+    final url = Uri.parse('${ApiConfig.baseUrl}:8000/api/donations');
     Map<String, dynamic> body = {
       'campaign_id': id,
       'type': type,

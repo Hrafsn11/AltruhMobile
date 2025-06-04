@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../models/campaign.dart';
 import 'campaign_detail_page.dart';
 import '../widgets/campaign_card.dart';
+import '../core/api_config.dart';
 
 class FilteredCampaignListPage extends StatefulWidget {
   final String campaignType; // 'financial', 'goods', 'emotional'
@@ -39,8 +40,8 @@ class _FilteredCampaignListPageState extends State<FilteredCampaignListPage> {
       error = '';
     });
     try {
-      final response = await http
-          .get(Uri.parse('http://192.168.100.141:8000/api/campaigns'));
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}:8000/api/campaigns'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> list = data['data'] ?? [];

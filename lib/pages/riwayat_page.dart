@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/api_config.dart';
 
 class RiwayatPage extends StatefulWidget {
   final dynamic user;
@@ -29,7 +30,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    final url = Uri.parse('http://192.168.100.141:8000/api/my-donations');
+    final url = Uri.parse('${ApiConfig.baseUrl}:8000/api/my-donations');
     try {
       final response = await http.get(
         url,
