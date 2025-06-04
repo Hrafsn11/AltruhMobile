@@ -63,10 +63,38 @@ class _VerifikasiIdentitasPageState extends State<VerifikasiIdentitasPage> {
           : ListView(
               padding: const EdgeInsets.all(24),
               children: [
-                _verification == null
+                _verification == null ||
+                        (_verification != null &&
+                            _verification!.status == 'rejected')
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFEBEB),
+                              borderRadius: BorderRadius.circular(12),
+                              border:
+                                  Border.all(color: const Color(0xFFF87171)),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.cancel, color: Color(0xFFB91C1C)),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Verifikasi anda sebelumnya ditolak',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF7F1D1D),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
                           const Text('Nama Lengkap'),
                           const SizedBox(height: 4),
                           TextFormField(
@@ -254,31 +282,59 @@ class _VerifikasiIdentitasPageState extends State<VerifikasiIdentitasPage> {
                           )
                         ],
                       )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListItem(
-                              title: 'Status', value: _verification!.status),
-                          const SizedBox(height: 10),
-                          ListItem(
-                              title: 'Nama Lengkap',
-                              value: _verification!.fullName),
-                          const SizedBox(height: 10),
-                          ListItem(title: 'Email', value: _verification!.email),
-                          const SizedBox(height: 10),
-                          ListItem(
-                              title: 'No. Telepon',
-                              value: _verification!.phoneNumber),
-                          const SizedBox(height: 10),
-                          ListItem(
-                              title: 'No. Akun Bank',
-                              value: _verification!.bankAccountNumber),
-                          const SizedBox(height: 10),
-                          ListItem(
-                              title: 'No. KTP',
-                              value: _verification!.ktpNumber),
-                        ],
-                      ),
+                    : _verification!.status == 'pending'
+                        ? Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFFBEB),
+                              borderRadius: BorderRadius.circular(12),
+                              border:
+                                  Border.all(color: const Color(0xFFFBBF24)),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.hourglass_top,
+                                    color: Color(0xFFF59E0B)),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Menunggu verifikasi dari admin',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF92400E),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFECFDF5),
+                              borderRadius: BorderRadius.circular(12),
+                              border:
+                                  Border.all(color: const Color(0xFF34D399)),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.check_circle,
+                                    color: Color(0xFF059669)),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Verifikasi berhasil',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF065F46),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
               ],
             ),
     );
