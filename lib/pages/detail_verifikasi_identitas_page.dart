@@ -25,16 +25,6 @@ class DetailVerifikasiIdentitasPage extends StatelessWidget {
           _buildItem('Telepon', data.phoneNumber),
           _buildItem('No. KTP', data.ktpNumber),
           _buildItem('Status', data.status),
-          const SizedBox(height: 12),
-          const Text(
-            'Foto KTP',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-          Image.network(
-            'http://192.168.100.97:8000/storage/${data.photo}',
-            width: double.infinity,
-          ),
         ],
       ),
     );

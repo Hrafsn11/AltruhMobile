@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:donasi_app/models/identity_verification_model.dart';
 import 'package:donasi_app/models/user_model.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../service/identity_verification_service.dart';
 
@@ -23,17 +20,7 @@ class _VerifikasiIdentitasPageState extends State<VerifikasiIdentitasPage> {
   final bankController = TextEditingController();
   final ktpController = TextEditingController();
 
-  File? _image;
   IdentityVerificationModel? _verification;
-
-  Future<void> _pickImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() {
-        _image = File(picked.path);
-      });
-    }
-  }
 
   void _getIdentityVerification() async {
     final result =
@@ -201,27 +188,6 @@ class _VerifikasiIdentitasPageState extends State<VerifikasiIdentitasPage> {
                                   vertical: 0, horizontal: 16),
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          const Text('Foto KTP'),
-                          const SizedBox(height: 4),
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: _image != null
-                                ? Image.file(_image!, width: double.infinity)
-                                : Container(
-                                    width: double.infinity,
-                                    height: 150,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: const Color(0xffE7ECFA)),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Center(
-                                      child: Icon(Icons.image,
-                                          size: 50, color: Colors.grey),
-                                    ),
-                                  ),
-                          ),
                           const SizedBox(height: 24),
                           SizedBox(
                             width: double.infinity,
@@ -237,19 +203,32 @@ class _VerifikasiIdentitasPageState extends State<VerifikasiIdentitasPage> {
                                     emailController.text.isNotEmpty &&
                                     phoneController.text.isNotEmpty &&
                                     bankController.text.isNotEmpty &&
-                                    ktpController.text.isNotEmpty &&
-                                    _image != null) {
-                                  String? pathFile = _image!.path;
-
+                                    ktpController.text.isNotEmpty) {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => AlertDialog(
+                                      content: Row(
+                                        children: [
+                                          CircularProgressIndicator(
+                                            color: Colors.amber[700],
+                                          ),
+                                          const SizedBox(width: 16),
+                                          const Text('Memproses...'),
+                                        ],
+                                      ),
+                                    ),
+                                  );
                                   final result =
                                       await IdentityVerificationService()
                                           .createIdentityVerification(
-                                              nameController.text,
-                                              emailController.text,
-                                              phoneController.text,
-                                              bankController.text,
-                                              ktpController.text,
-                                              pathFile);
+                                    nameController.text,
+                                    emailController.text,
+                                    phoneController.text,
+                                    bankController.text,
+                                    ktpController.text,
+                                  );
+                                  Navigator.of(context).pop();
 
                                   result.fold(
                                     (err) {
@@ -298,11 +277,6 @@ class _VerifikasiIdentitasPageState extends State<VerifikasiIdentitasPage> {
                           ListItem(
                               title: 'No. KTP',
                               value: _verification!.ktpNumber),
-                          const SizedBox(height: 10),
-                          const Text('Foto KTP :'),
-                          const SizedBox(height: 4),
-                          Image.network(
-                              'http://192.168.100.97:8000/storage/${_verification!.photo}')
                         ],
                       ),
               ],

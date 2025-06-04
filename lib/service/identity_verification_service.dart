@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
-// ignore: depend_on_referenced_packages
-import 'package:http_parser/http_parser.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +17,7 @@ class IdentityVerificationService {
 
       final res = await http.get(
         Uri.parse(
-            'http://192.168.100.97:8000/api/admin/identity-verifications/pending'),
+            'http://192.168.100.141:8000/api/admin/identity-verifications/pending'),
         headers: {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
@@ -52,7 +50,7 @@ class IdentityVerificationService {
 
       final response = await http.post(
         Uri.parse(
-            'http://192.168.100.97:8000/api/admin/identity-verifications/$id/approve'),
+            'http://192.168.100.141:8000/api/admin/identity-verifications/$id/approve'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -82,7 +80,7 @@ class IdentityVerificationService {
 
       final response = await http.post(
         Uri.parse(
-            'http://192.168.100.97:8000/api/admin/identity-verifications/$id/reject'),
+            'http://192.168.100.141:8000/api/admin/identity-verifications/$id/reject'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -112,7 +110,7 @@ class IdentityVerificationService {
       if (token == null) return const Left('Unauthorized');
 
       final res = await http.get(
-        Uri.parse('http://192.168.100.97:8000/api/identity-verifications/me'),
+        Uri.parse('http://192.168.100.141:8000/api/identity-verifications/me'),
         headers: {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
@@ -141,70 +139,37 @@ class IdentityVerificationService {
     String phone,
     String noBank,
     String noKtp,
-    String photoPath,
   ) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
+      final token = (await SharedPreferences.getInstance()).getString('token');
       if (token == null) return const Left('Unauthorized');
 
-      final headers = {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
-
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('http://192.168.100.97:8000/api/identity-verifications'),
+      final response = await http.post(
+        Uri.parse('http://192.168.100.141:8000/api/identity-verifications/raw'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: {
+          'full_name': name,
+          'email': email,
+          'phone_number': phone,
+          'bank_account_number': noBank,
+          'ktp_number': noKtp,
+        },
       );
 
-      request.headers.addAll(headers);
-
-      request.fields.addAll({
-        "full_name": name,
-        "email": email,
-        "phone_number": phone,
-        "bank_account_number": noBank,
-        "ktp_number": noKtp,
-      });
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'photo',
-          photoPath,
-          contentType: MediaType('image', _getMimeType(photoPath)),
-        ),
-      );
-
-      final res = await request.send();
-      print('Status Code: ${res.statusCode}');
-
-      if (res.statusCode == 201) {
+      print('Status Code (createIdentityVerification): ${response.statusCode}');
+      print(response.body);
+      if (response.statusCode == 201) {
         return const Right('Sukses');
-      } else if (res.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         return const Left('Unauthorized');
       } else {
         return const Left('Terjadi Kesalahan');
       }
     } catch (e) {
       return const Left('Connection Error');
-    }
-  }
-
-  // Fungsi bantu untuk ambil ekstensi mime
-  String _getMimeType(String filePath) {
-    final extension = filePath.split('.').last.toLowerCase();
-    switch (extension) {
-      case 'jpg':
-      case 'jpeg':
-        return 'jpeg';
-      case 'png':
-        return 'png';
-      case 'gif':
-        return 'gif';
-      default:
-        return 'jpeg';
     }
   }
 }

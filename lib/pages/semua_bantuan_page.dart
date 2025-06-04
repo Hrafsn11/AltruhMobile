@@ -31,8 +31,8 @@ class _SemuaBantuanPageState extends State<SemuaBantuanPage> {
       error = '';
     });
     try {
-      final response =
-          await http.get(Uri.parse('http://192.168.1.4:8000/api/campaigns'));
+      final response = await http
+          .get(Uri.parse('http://192.168.100.141:8000/api/campaigns'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> list = data['data'] ?? [];

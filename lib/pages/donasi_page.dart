@@ -31,7 +31,7 @@ class _DonasiPageState extends State<DonasiPage> {
     setState(() => isLoading = true);
     final type = widget.campaign['type'];
     final id = widget.campaign['id'];
-    final url = Uri.parse('http://192.168.1.4:8000/api/donations');
+    final url = Uri.parse('http://192.168.100.141:8000/api/donations');
     Map<String, dynamic> body = {
       'campaign_id': id,
       'type': type,

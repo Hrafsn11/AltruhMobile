@@ -81,20 +81,31 @@ class _VerifikasiIdentitasAdminPageState
                               const SizedBox(height: 8),
                               Text('No. KTP  : ${data.ktpNumber}'),
                               const SizedBox(height: 8),
-                              Image.network(
-                                'http://192.168.100.97:8000/storage/${data.photo}',
-                                width: double.infinity,
-                              ),
-                              const SizedBox(height: 8),
                               Row(
                                 children: [
                                   Expanded(
                                     child: FilledButton(
                                       onPressed: () async {
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (context) => AlertDialog(
+                                            content: Row(
+                                              children: [
+                                                CircularProgressIndicator(
+                                                  color: Colors.amber[700],
+                                                ),
+                                                const SizedBox(width: 16),
+                                                const Text('Memproses...'),
+                                              ],
+                                            ),
+                                          ),
+                                        );
                                         final result =
                                             await IdentityVerificationService()
                                                 .approveIdentityVerification(
                                                     data.id);
+                                        Navigator.of(context).pop();
                                         result.fold(
                                           (error) {
                                             ScaffoldMessenger.of(context)
@@ -127,10 +138,26 @@ class _VerifikasiIdentitasAdminPageState
                                   Expanded(
                                     child: FilledButton(
                                       onPressed: () async {
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (context) => AlertDialog(
+                                            content: Row(
+                                              children: [
+                                                CircularProgressIndicator(
+                                                  color: Colors.amber[700],
+                                                ),
+                                                const SizedBox(width: 16),
+                                                const Text('Memproses...'),
+                                              ],
+                                            ),
+                                          ),
+                                        );
                                         final result =
                                             await IdentityVerificationService()
                                                 .rejectIdentityVerification(
                                                     data.id);
+                                        Navigator.of(context).pop();
 
                                         result.fold(
                                           (error) {

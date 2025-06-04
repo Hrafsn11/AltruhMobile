@@ -82,7 +82,7 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
       return;
     }
     if (_formKey.currentState!.validate()) {
-      final url = Uri.parse('http://192.168.1.4:8000/api/campaigns');
+      final url = Uri.parse('http://192.168.100.141:8000/api/campaigns');
       try {
         final Map<String, dynamic> body = {
           'title': _titleController.text,

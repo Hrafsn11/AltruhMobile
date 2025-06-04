@@ -6,7 +6,6 @@ class IdentityVerificationModel {
   final String phoneNumber;
   final String bankAccountNumber;
   final String ktpNumber;
-  final String photo;
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -19,7 +18,6 @@ class IdentityVerificationModel {
     required this.phoneNumber,
     required this.bankAccountNumber,
     required this.ktpNumber,
-    required this.photo,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -34,7 +32,6 @@ class IdentityVerificationModel {
       phoneNumber: json['phone_number'],
       bankAccountNumber: json['bank_account_number'],
       ktpNumber: json['ktp_number'],
-      photo: json['photo'],
       status: json['status'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),

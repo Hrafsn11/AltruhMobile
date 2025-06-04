@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:donasi_app/pages/auth/login_page.dart';
 import 'package:donasi_app/pages/campaign/my_campaigns_page.dart';
+import 'package:donasi_app/pages/verifikasi_identitas_admin_page.dart';
 import 'package:donasi_app/pages/verifikasi_identitas_page.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
@@ -80,6 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                   ),
+                  // if (user.role != 'admin')
                   _buildMenuItem(
                     icon: Icons.badge_outlined,
                     title: 'Verifikasi Identitas',
@@ -106,6 +108,20 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                   ),
+                  if (user.role == 'admin')
+                    _buildMenuItem(
+                      icon: Icons.badge_outlined,
+                      title: 'Admin Verifikasi Identitas',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const VerifikasiIdentitasAdminPage(),
+                          ),
+                        );
+                      },
+                    ),
                   _buildMenuItem(
                     icon: Icons.logout,
                     title: 'Keluar',

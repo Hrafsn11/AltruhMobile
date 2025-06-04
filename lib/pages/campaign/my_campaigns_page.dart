@@ -30,7 +30,7 @@ class _MyCampaignsPageState extends State<MyCampaignsPage> {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    final url = Uri.parse('http://192.168.1.4:8000/api/my-campaigns');
+    final url = Uri.parse('http://192.168.100.141:8000/api/my-campaigns');
     try {
       final response = await http.get(
         url,
