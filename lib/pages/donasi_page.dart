@@ -222,7 +222,37 @@ class _DonasiPageState extends State<DonasiPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: isLoading ? null : _submitDonation,
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              if (_formKey.currentState!.validate()) {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Konfirmasi Donasi'),
+                                    content: const Text(
+                                        'Apakah Anda yakin ingin mengirim donasi ini?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: const Text('Batal'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.amber[700]),
+                                        child: const Text('Ya, Donasi'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  _submitDonation();
+                                }
+                              }
+                            },
                       icon: const Icon(Icons.volunteer_activism,
                           color: Colors.white),
                       label: isLoading
