@@ -2,25 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../core/api_config.dart';
+import '../../core/api_config.dart';
+import '../../models/campaign.dart';
 
-class CreateCampaignPage extends StatefulWidget {
+class EditCampaignPage extends StatefulWidget {
+  final Campaign campaign;
+  const EditCampaignPage({Key? key, required this.campaign}) : super(key: key);
+
   @override
-  _CreateCampaignPageState createState() => _CreateCampaignPageState();
+  _EditCampaignPageState createState() => _EditCampaignPageState();
 }
 
-class _CreateCampaignPageState extends State<CreateCampaignPage> {
+class _EditCampaignPageState extends State<EditCampaignPage> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _targetAmountController = TextEditingController();
-  String _selectedType = '';
+  late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
+  late TextEditingController _targetAmountController;
+  late String _selectedType;
   String? token;
 
   @override
   void initState() {
     super.initState();
     _loadToken();
+    _titleController = TextEditingController(text: widget.campaign.title);
+    _descriptionController = TextEditingController(text: widget.campaign.description);
+    _selectedType = widget.campaign.type;
+    // Initialize target based on type
+    switch (_selectedType) {
+      case 'financial':
+         _targetAmountController = TextEditingController(text: widget.campaign.targetAmount.toString());
+        break;
+      case 'goods':
+         _targetAmountController = TextEditingController(text: widget.campaign.targetAmount.toString()); // Assuming targetAmount holds item count for goods
+        break;
+      case 'emotional':
+         _targetAmountController = TextEditingController(text: widget.campaign.targetAmount.toString()); // Assuming targetAmount holds session count for emotional
+        break;
+      default:
+         _targetAmountController = TextEditingController();
+        break;
+    }
+  }
+
+   @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _targetAmountController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadToken() async {
@@ -77,32 +107,30 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
           message: 'Token login tidak ditemukan. Silakan login ulang!');
       return;
     }
-    if (_selectedType.isEmpty) {
-      _showResultDialog(
-          success: false, message: 'Pilih tipe campaign terlebih dahulu!');
-      return;
-    }
     if (_formKey.currentState!.validate()) {
-      final url = Uri.parse('${ApiConfig.baseUrl}:8000/api/campaigns');
+      final url = Uri.parse('${ApiConfig.baseUrl}:8000/api/campaigns/${widget.campaign.id}'); // Use campaign ID for update
+      print('Edit URL: $url');
       try {
         final Map<String, dynamic> body = {
           'title': _titleController.text,
           'description': _descriptionController.text,
+          'type': _selectedType, // Include type in update
         };
-        if (_selectedType == 'financial') {
-          body['type'] = 'financial';
-          body['target_amount'] =
-              int.tryParse(_targetAmountController.text) ?? 0;
-        } else if (_selectedType == 'barang') {
-          body['type'] = 'goods';
-          body['target_items'] =
-              int.tryParse(_targetAmountController.text) ?? 0;
-        } else if (_selectedType == 'emosional') {
-          body['type'] = 'emotional';
-          body['target_sessions'] =
-              int.tryParse(_targetAmountController.text) ?? 0;
+        // Include target based on type
+        switch (_selectedType) {
+           case 'financial':
+            body['target_amount'] = int.tryParse(_targetAmountController.text) ?? 0;
+            break;
+          case 'goods':
+            body['target_items'] = int.tryParse(_targetAmountController.text) ?? 0; // Assuming API accepts target_items
+            break;
+          case 'emotional':
+            body['target_sessions'] = int.tryParse(_targetAmountController.text) ?? 0; // Assuming API accepts target_sessions
+            break;
         }
-        final response = await http.post(
+        print('Edit Request Body: ${jsonEncode(body)}');
+
+        final response = await http.put( // Use PUT or appropriate method for update
           url,
           headers: {
             'Content-Type': 'application/json',
@@ -111,24 +139,21 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
           body: jsonEncode(body),
         );
 
-        print('Status Code (createCampaign): ${response.statusCode}');
-        print('Response Body (createCampaign): ${response.body}');
+        print('Status Code (editCampaign): ${response.statusCode}');
+        print('Response Body (editCampaign): ${response.body}');
 
         final data = jsonDecode(response.body);
-        if (response.statusCode == 201 && data['success'] == true) {
+        if (response.statusCode == 200 && data['success'] == true) { // Assuming 200 for success
           _showResultDialog(
               success: true,
-              message: 'Campaign berhasil dibuat! Menunggu verifikasi admin.');
-          setState(() {
-            _titleController.clear();
-            _descriptionController.clear();
-            _targetAmountController.clear();
-            _selectedType = '';
-          });
+              message: 'Campaign berhasil diperbarui!');
+           // Optionally navigate back after successful update
+           // Navigator.pop(context, true); // Pass true to indicate success and refresh list
+
         } else {
           _showResultDialog(
               success: false,
-              message: data['message'] ?? 'Gagal membuat campaign.');
+              message: data['message'] ?? 'Gagal memperbarui campaign.');
         }
       } catch (e) {
         _showResultDialog(
@@ -154,7 +179,7 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
               child: const Icon(Icons.campaign, color: Colors.amber, size: 28),
             ),
             const SizedBox(width: 10),
-            const Text('Buat Campaign',
+            const Text('Edit Campaign',
                 style: TextStyle(
                     color: Colors.brown,
                     fontWeight: FontWeight.bold,
@@ -169,7 +194,7 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
+               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
                 margin: const EdgeInsets.only(bottom: 18),
@@ -185,63 +210,41 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
                   ],
                   border: Border.all(color: Colors.amber[100]!, width: 1.2),
                 ),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Form Campaign Baru",
+                     Text(
+                      "Form Edit Campaign", // Changed title here
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.brown),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Isi data campaign dengan lengkap dan menarik agar lebih banyak donatur yang tertarik.",
+                    SizedBox(height: 8),
+                    Text(
+                      "Perbarui data campaign Anda.", // Changed description here
                       style: TextStyle(fontSize: 14, color: Colors.brown),
                     ),
                   ],
                 ),
               ),
-              DropdownButtonFormField<String>(
-                value: _selectedType.isEmpty ? null : _selectedType,
+              // Display type but disable editing
+               InputDecorator(
                 decoration: InputDecoration(
-                  labelText: 'Tipe Campaign',
+                   labelText: 'Tipe Campaign',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                   prefixIcon: const Icon(Icons.category, color: Colors.amber),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: Colors.grey[200], // Indicate disabled
                 ),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'financial',
-                    child: Text('Donasi Uang'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'barang',
-                    child: Text('Donasi Barang'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'emosional',
-                    child: Text('Dukungan Emosional'),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedType = value ?? '';
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Pilih tipe campaign';
-                  }
-                  return null;
-                },
+                 child: Text(
+                  _selectedType.toUpperCase(),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                 ),
               ),
               const SizedBox(height: 16),
-              if (_selectedType.isNotEmpty)
                 Form(
                   key: _formKey,
                   child: Column(
@@ -270,7 +273,7 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
                       TextFormField(
                         controller: _descriptionController,
                         decoration: InputDecoration(
-                          labelText: 'Deskripsi',
+                          labelText: 'Deskripsi Campaign',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -279,7 +282,7 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
                           filled: true,
                           fillColor: Colors.white,
                         ),
-                        maxLines: 3,
+                        maxLines: 4,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Deskripsi tidak boleh kosong';
@@ -288,62 +291,63 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _targetAmountController,
-                        decoration: InputDecoration(
-                          labelText: _selectedType == 'financial'
-                              ? 'Target Donasi (Rp)'
-                              : _selectedType == 'barang'
-                                  ? 'Target Jumlah Barang'
-                                  : 'Target Sesi Dukungan',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          prefixIcon: Icon(
-                            _selectedType == 'financial'
-                                ? Icons.monetization_on
-                                : _selectedType == 'barang'
-                                    ? Icons.inventory_2
-                                    : Icons.psychology,
-                            color: Colors.amber,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                        ),
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return _selectedType == 'financial'
-                                ? 'Target donasi tidak boleh kosong'
-                                : _selectedType == 'barang'
-                                    ? 'Target barang tidak boleh kosong'
-                                    : 'Target sesi tidak boleh kosong';
-                          }
-                          if (int.tryParse(value) == null) {
-                            return 'Harus berupa angka';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _submitForm,
-                          icon: const Icon(Icons.add_circle_outline,
-                              color: Colors.white),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amber[700],
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
+                      // Show target field only for financial, goods, emotional
+                       if (_selectedType == 'financial' || _selectedType == 'goods' || _selectedType == 'emotional')
+                         TextFormField(
+                          controller: _targetAmountController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: _selectedType == 'financial'
+                                ? 'Target Donasi (Rp)'
+                                : _selectedType == 'goods'
+                                    ? 'Target Barang'
+                                    : 'Target Sesi',
+                            border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            elevation: 2,
+                            prefixIcon: Icon(
+                              _selectedType == 'financial'
+                                  ? Icons.attach_money
+                                  : _selectedType == 'goods'
+                                      ? Icons.inventory_2
+                                      : Icons.sentiment_satisfied_alt,
+                              color: Colors.amber,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
                           ),
-                          label: const Text(
-                            'Buat Campaign',
+                           validator: (value) {
+                             if (value == null || value.isEmpty) {
+                               return 'Target tidak boleh kosong';
+                             }
+                             if (int.tryParse(value) == null || int.parse(value) <= 0) {
+                               return 'Target harus berupa angka positif';
+                             }
+                             return null;
+                           },
+                        ),
+                       const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          style: ButtonStyle(
+                            backgroundColor:
+                                WidgetStateProperty.all(Colors.amber[700]),
+                            padding: WidgetStateProperty.all(
+                                const EdgeInsets.symmetric(vertical: 14)),
+                            shape: WidgetStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                          ),
+                          onPressed: _submitForm,
+                          child: const Text(
+                            'Perbarui Campaign',
                             style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -356,12 +360,4 @@ class _CreateCampaignPageState extends State<CreateCampaignPage> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _targetAmountController.dispose();
-    super.dispose();
-  }
-}
+} 

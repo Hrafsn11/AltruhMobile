@@ -102,6 +102,46 @@ class IdentityVerificationService {
     }
   }
 
+  // Add a new function to get identity verification by user ID (assuming an API endpoint exists)
+  Future<Either<String, IdentityVerificationModel?>> getIdentityVerificationByUserId(int userId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      if (token == null) return const Left('Unauthorized');
+
+      final res = await http.get(
+        Uri.parse(
+            '${ApiConfig.baseUrl}:8000/api/admin/identity-verifications/user/$userId'),
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Status Code (getIdentityVerificationByUserId): ${res.statusCode}');
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body)['data'];
+        // Assuming the API returns null or empty data if no verification is found
+        if (data == null) {
+          return const Right(null);
+        }
+        final verification = IdentityVerificationModel.fromJson(data);
+        return Right(verification);
+      } else if (res.statusCode == 401) {
+        return const Left('Unauthorized');
+      } else if (res.statusCode == 404) {
+        // User not found or no verification for user
+        return const Right(null);
+      }
+       else {
+        return Left('Server Error: ${res.statusCode}');
+      }
+    } catch (e) {
+      return Left('Connection Error: $e');
+    }
+  }
+
   // User
   Future<Either<String, IdentityVerificationModel>>
       getIdentityVerification() async {
