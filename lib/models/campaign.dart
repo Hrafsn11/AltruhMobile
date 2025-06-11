@@ -32,10 +32,11 @@ class Campaign {
     }
     // Handle creator name
     String creatorName = '';
-    if (json['user'] != null && json['user']['name'] != null) {
-      creatorName = json['user']['name'];
-    } else if (json['creator_name'] != null) {
+    if (json['creator_name'] != null &&
+        json['creator_name'].toString().isNotEmpty) {
       creatorName = json['creator_name'];
+    } else if (json['user'] != null && json['user']['name'] != null) {
+      creatorName = json['user']['name'];
     }
     // Handle target/collected by type
     int target = 1;

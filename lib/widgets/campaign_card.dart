@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/campaign.dart';
 
-class CampaignCard extends StatefulWidget {
+class CampaignCard extends StatelessWidget {
   final Campaign campaign;
   final VoidCallback? onTap;
 
@@ -11,225 +11,318 @@ class CampaignCard extends StatefulWidget {
     this.onTap,
   }) : super(key: key);
 
-  @override
-  State<CampaignCard> createState() => _CampaignCardState();
-}
+  Color _getTypeColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'financial':
+        return Colors.green;
+      case 'goods':
+        return Colors.blue;
+      case 'emotional':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
 
-class _CampaignCardState extends State<CampaignCard> {
+  IconData _getTypeIcon(String type) {
+    switch (type.toLowerCase()) {
+      case 'financial':
+        return Icons.monetization_on;
+      case 'goods':
+        return Icons.inventory;
+      case 'emotional':
+        return Icons.favorite;
+      default:
+        return Icons.campaign;
+    }
+  }
+
+  String _getTypeLabel(String type) {
+    switch (type.toLowerCase()) {
+      case 'financial':
+        return 'UANG';
+      case 'goods':
+        return 'BARANG';
+      case 'emotional':
+        return 'MORAL';
+      default:
+        return 'LAINNYA';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget _buildImage(String imageUrl) {
-      if (imageUrl.isNotEmpty) {
-        return Image.network(
-          imageUrl,
-          height: 140,
-          width: double.infinity,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            height: 140,
-            width: double.infinity,
-            color: Colors.grey[200],
-            child: const Icon(Icons.broken_image, size: 40, color: Colors.grey),
-          ),
-        );
-      } else {
-        return Container(
-          height: 140,
-          width: double.infinity,
-          color: Colors.grey[200],
-          child: const Icon(Icons.image, size: 40, color: Colors.grey),
-        );
-      }
-    }
-
-    return InkWell(
-      onTap: widget.onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        elevation: 2,
-        shadowColor: Colors.black12,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Card(
+      margin: const EdgeInsets.all(0),
+      elevation: 2,
+      shadowColor: _getTypeColor(campaign.type).withOpacity(0.2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Campaign Image
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
+            // Image Section
+            SizedBox(
+              height: 160,
               child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  _buildImage(widget.campaign.imageUrl),
-                  // Overlay gradient for better text readability
+                  // Main Image
+                  campaign.imageUrl.isNotEmpty
+                      ? Image.network(
+                          campaign.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  _getTypeColor(campaign.type).withOpacity(0.1),
+                                  _getTypeColor(campaign.type).withOpacity(0.3),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Icon(
+                              _getTypeIcon(campaign.type),
+                              size: 60,
+                              color:
+                                  _getTypeColor(campaign.type).withOpacity(0.5),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                _getTypeColor(campaign.type).withOpacity(0.1),
+                                _getTypeColor(campaign.type).withOpacity(0.3),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: Icon(
+                            _getTypeIcon(campaign.type),
+                            size: 60,
+                            color:
+                                _getTypeColor(campaign.type).withOpacity(0.5),
+                          ),
+                        ),
+
+                  // Type Badge
                   Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
+                    top: 12,
+                    left: 12,
                     child: Container(
-                      height: 60,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.6),
-                            Colors.transparent,
-                          ],
+                        color: _getTypeColor(campaign.type),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        _getTypeLabel(campaign.type),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Progress Badge
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '${(campaign.progress * 100).toInt()}%',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: _getTypeColor(campaign.type),
                         ),
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-
-            // Content
-            Flexible(
-              fit: FlexFit.loose,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Title
-                    Text(
-                      widget.campaign.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+            ), // Content Section
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title
+                  Text(
+                    campaign.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                      height: 1.2,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
 
-                    const SizedBox(height: 6),
+                  const SizedBox(height: 8),
 
-                    // Creator
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 12,
-                          backgroundColor: Colors.grey[200],
-                          child: Icon(Icons.person,
-                              size: 16, color: Colors.grey[600]),
+                  // Creator
+                  Row(
+                    children: [
+                      Icon(Icons.person,
+                          size: 14, color: _getTypeColor(campaign.type)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'oleh ${campaign.creatorName}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            widget.campaign.creatorName,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w500,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Description
+                  Text(
+                    campaign.description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Progress Section
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: _getTypeColor(campaign.type).withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _getTypeColor(campaign.type).withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Progress Bar
+                        Container(
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: LinearProgressIndicator(
+                              value: campaign.progress.clamp(0.0, 1.0),
+                              backgroundColor: Colors.transparent,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                _getTypeColor(campaign.type),
+                              ),
+                              minHeight: 6,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      ],
-                    ),
 
-                    const SizedBox(height: 4),
+                        const SizedBox(height: 8),
 
-                    // Campaign Type
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.amber[50],
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: Colors.amber[200]!),
-                      ),
-                      child: Text(
-                        widget.campaign.type.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.amber[900],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    // Description
-                    Text(
-                      widget.campaign.description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                        height: 1.3,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // Progress Section
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                        // Progress Values
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Terkumpul',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Terkumpul',
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.grey[600]),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    campaign.displayCollected,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: _getTypeColor(campaign.type),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
                             ),
-                            Text(
-                              '${(widget.campaign.progress * 100).toInt()}%',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.amber,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Target',
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.grey[600]),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    campaign.displayTarget,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[800],
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: widget.campaign.progress.clamp(0, 1),
-                            backgroundColor: Colors.grey[200],
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                                Colors.amber),
-                            minHeight: 4,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              widget.campaign.displayCollected,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.brown[800],
-                              ),
-                            ),
-                            Text(
-                              widget.campaign.displayTarget,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

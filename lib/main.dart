@@ -1,11 +1,10 @@
 import 'package:donasi_app/models/user_model.dart';
-import 'package:donasi_app/pages/auth/login_page.dart';
 import 'package:flutter/material.dart';
-import 'pages/home_page.dart';
-import 'pages/create_campaign_page.dart';
-import 'pages/profile_page.dart';
-import 'core/theme.dart';
-import 'pages/splash_screen.dart';
+import 'package:donasi_app/pages/home_page.dart';
+import 'package:donasi_app/pages/create_campaign_page.dart';
+import 'package:donasi_app/pages/profile_page.dart';
+import 'package:donasi_app/core/theme.dart';
+import 'package:donasi_app/pages/splash_screen.dart';
 
 void main() {
   runApp(const AltruhApp());
@@ -37,15 +36,14 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
   List<Widget> _pages = [];
-
   @override
   void initState() {
+    super.initState();
     _pages = [
       HomePage(user: widget.user),
       CreateCampaignPage(),
       ProfilePage(user: widget.user),
     ];
-    super.initState();
   }
 
   void _onItemTapped(int index) {

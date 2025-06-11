@@ -63,156 +63,524 @@ class _RiwayatPageState extends State<RiwayatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Riwayat Donasi'),
+        title: const Text(
+          'Riwayat Donasi',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
+        ),
         backgroundColor: Colors.amber[700],
+        elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: fetchDonations,
+            icon: const Icon(Icons.refresh, color: Colors.white),
+          ),
+        ],
       ),
-      backgroundColor: Colors.amber[50],
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : error.isNotEmpty
-              ? Center(child: Text(error))
-              : donations.isEmpty
-                  ? Column(
+      body: RefreshIndicator(
+        color: Colors.amber[700],
+        onRefresh: fetchDonations,
+        child: isLoading
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Colors.amber,
+                      strokeWidth: 3,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Memuat riwayat donasi...',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : error.isNotEmpty
+                ? Center(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset('assets/images/empty_state.png',
-                            height: 160),
-                        const SizedBox(height: 18),
-                        const Text('Belum ada riwayat donasi.',
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.brown)),
-                      ],
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: donations.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 14),
-                      itemBuilder: (context, index) {
-                        final d = donations[index];
-                        final campaign = d['campaign'] ?? {};
-                        final isUang = campaign['type'] == 'financial';
-                        final isBarang = campaign['type'] == 'goods';
-                        final isEmosional = campaign['type'] == 'emotional';
-                        final status = d['payment_verified'] ?? '-';
-                        final statusColor = status == 'verified'
-                            ? Colors.green
-                            : status == 'pending'
-                                ? Colors.orange
-                                : Colors.red;
-                        return Container(
+                        Container(
+                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.amber.withOpacity(0.08),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                            border: Border.all(
-                              color: Colors.amber[100]!,
-                              width: 1.2,
+                            color: Colors.red[50],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red[400],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Oops!',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.red[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          error,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: fetchDonations,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.amber[700],
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 18, vertical: 16),
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.amber[50],
-                              radius: 28,
+                          icon: const Icon(Icons.refresh, color: Colors.white),
+                          label: const Text(
+                            'Coba Lagi',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : donations.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                shape: BoxShape.circle,
+                              ),
                               child: Icon(
-                                isUang
-                                    ? Icons.attach_money
-                                    : isBarang
-                                        ? Icons.inventory
-                                        : Icons.emoji_emotions,
-                                color: Colors.amber[700],
-                                size: 30,
+                                Icons.history_outlined,
+                                size: 64,
+                                color: Colors.grey[400],
                               ),
                             ),
-                            title: Text(
-                              campaign['title'] ?? '-',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: Color(0xFF4E342E)),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                            const SizedBox(height: 16),
+                            Text(
+                              'Belum Ada Riwayat',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey[600],
+                              ),
                             ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+                            const SizedBox(height: 8),
+                            Text(
+                              'Anda belum melakukan donasi apapun.\nMulai berbagi kebaikan sekarang!',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[500],
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          // Header Stats
+                          Container(
+                            margin: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.amber[100]!, Colors.amber[50]!],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.amber[200]!),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber[200],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.volunteer_activism,
+                                    color: Colors.amber[800],
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber[50],
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          (campaign['type'] ?? '-')
-                                              .toString()
-                                              .toUpperCase(),
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
-                                              color: Color(0xFF8D6E63)),
+                                      Text(
+                                        'Total Donasi Anda',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.amber[800],
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      Icon(Icons.verified,
-                                          color: statusColor, size: 18),
-                                      const SizedBox(width: 4),
+                                      const SizedBox(height: 4),
                                       Text(
-                                        status == 'verified' ||
-                                                status == 'approved'
-                                            ? 'Terverifikasi'
-                                            : status == 'pending'
-                                                ? 'Menunggu Verifikasi'
-                                                : status == 'rejected'
-                                                    ? 'Ditolak'
-                                                    : status,
+                                        '${donations.length} donasi',
                                         style: TextStyle(
-                                            color: statusColor,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 12),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.amber[900],
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 6),
-                                  if (isUang && d['amount'] != null)
-                                    Text('Nominal: Rp${d['amount']}',
-                                        style: const TextStyle(fontSize: 14)),
-                                  if (isBarang && d['item_quantity'] != null)
-                                    Text('Jumlah Barang: ${d['item_quantity']}',
-                                        style: const TextStyle(fontSize: 14)),
-                                  if (isBarang && d['item_description'] != null)
-                                    Text('Barang: ${d['item_description']}',
-                                        style: const TextStyle(fontSize: 14)),
-                                  if (isEmosional &&
-                                      d['initial_message'] != null)
-                                    Text('Pesan: ${d['initial_message']}',
-                                        style: const TextStyle(fontSize: 14)),
-                                  Text(
-                                    'Tanggal: ${d['created_at']?.toString().substring(0, 10) ?? '-'}',
-                                    style: const TextStyle(
-                                        fontSize: 13, color: Colors.grey),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
                                   ),
-                                ],
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber[300],
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    'Terima Kasih!',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.amber[900],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Donations List
+                          Expanded(
+                            child: ListView.separated(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              itemCount: donations.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 12),
+                              itemBuilder: (context, index) {
+                                final d = donations[index];
+                                return _buildDonationCard(d);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+      ),
+    );
+  }
+
+  Widget _buildDonationCard(dynamic donation) {
+    final campaign = donation['campaign'] ?? {};
+    final type = campaign['type'] ?? '';
+    final status = donation['payment_verified'] ?? 'pending';
+
+    Color statusColor;
+    Color statusBgColor;
+    String statusText;
+    IconData statusIcon;
+
+    switch (status) {
+      case 'verified':
+      case 'approved':
+        statusColor = Colors.green[700]!;
+        statusBgColor = Colors.green[50]!;
+        statusText = 'Terverifikasi';
+        statusIcon = Icons.verified;
+        break;
+      case 'pending':
+        statusColor = Colors.orange[700]!;
+        statusBgColor = Colors.orange[50]!;
+        statusText = 'Menunggu Verifikasi';
+        statusIcon = Icons.hourglass_top;
+        break;
+      case 'rejected':
+        statusColor = Colors.red[700]!;
+        statusBgColor = Colors.red[50]!;
+        statusText = 'Ditolak';
+        statusIcon = Icons.cancel;
+        break;
+      default:
+        statusColor = Colors.grey[700]!;
+        statusBgColor = Colors.grey[50]!;
+        statusText = status;
+        statusIcon = Icons.help;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with campaign info
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _getCampaignColor(type).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    _getCampaignIcon(type),
+                    color: _getCampaignColor(type),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        campaign['title'] ?? 'Campaign Tidak Diketahui',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getCampaignColor(type).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              _getCampaignTypeText(type).toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: _getCampaignColor(type),
                               ),
                             ),
                           ),
-                        );
-                      },
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Status Badge
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: statusBgColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: statusColor.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    statusIcon,
+                    color: statusColor,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    statusText,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: statusColor,
                     ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Donation Details
+            _buildDonationDetails(donation, type),
+
+            const SizedBox(height: 12),
+
+            // Date
+            Row(
+              children: [
+                Icon(
+                  Icons.schedule,
+                  size: 16,
+                  color: Colors.grey[500],
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Tanggal: ${donation['created_at']?.toString().substring(0, 10) ?? '-'}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  Widget _buildDonationDetails(dynamic donation, String type) {
+    if (type == 'financial' && donation['amount'] != null) {
+      return Row(
+        children: [
+          Icon(Icons.monetization_on, size: 16, color: Colors.green[600]),
+          const SizedBox(width: 6),
+          Text(
+            'Nominal: Rp ${donation['amount']}',
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        ],
+      );
+    } else if (type == 'goods') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (donation['item_quantity'] != null)
+            Row(
+              children: [
+                Icon(Icons.inventory_2, size: 16, color: Colors.orange[600]),
+                const SizedBox(width: 6),
+                Text(
+                  'Jumlah: ${donation['item_quantity']} barang',
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          if (donation['item_description'] != null) ...[
+            const SizedBox(height: 4),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.description, size: 16, color: Colors.orange[600]),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Barang: ${donation['item_description']}',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      );
+    } else if (type == 'emotional' && donation['initial_message'] != null) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.psychology, size: 16, color: Colors.pink[600]),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'Pesan: ${donation['initial_message']}',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Color _getCampaignColor(String type) {
+    switch (type) {
+      case 'financial':
+        return Colors.green[600]!;
+      case 'goods':
+        return Colors.orange[600]!;
+      case 'emotional':
+        return Colors.pink[600]!;
+      default:
+        return Colors.grey[600]!;
+    }
+  }
+
+  IconData _getCampaignIcon(String type) {
+    switch (type) {
+      case 'financial':
+        return Icons.monetization_on;
+      case 'goods':
+        return Icons.inventory_2;
+      case 'emotional':
+        return Icons.psychology;
+      default:
+        return Icons.volunteer_activism;
+    }
+  }
+
+  String _getCampaignTypeText(String type) {
+    switch (type) {
+      case 'financial':
+        return 'Uang';
+      case 'goods':
+        return 'Barang';
+      case 'emotional':
+        return 'Emosional';
+      default:
+        return 'Donasi';
+    }
   }
 }
